@@ -65,11 +65,11 @@ mean_k_feb19_26
 #### swe inversion ####
 #######################
 
-# first step, define function for insar constant
+#### first step, define function for insar constant
 
-# inc = incidence angle raster [deg]
-# wL = sensor save length [cm]
-# k = dielectric permittivty 
+# inc_angle = incidence angle raster [deg]
+# wavelength = sensor save length [cm]
+# perm = dielectric permittivty 
 
 # radar wave length from uavsar annotation file
 uavsar_wL <- 23.8403545

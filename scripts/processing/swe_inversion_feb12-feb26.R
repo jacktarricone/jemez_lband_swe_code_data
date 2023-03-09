@@ -5,47 +5,30 @@
 library(terra)
 library(ggplot2)
 
-# set home folder
-setwd("/Users/jacktarricone/ch1_jemez/gpr_rasters_ryan/")
+# set path to '/jemez_lband_swe_code_data' that was downloaded and unzipped from zenodo
+# all other file paths are relative
+setwd("path/to/jemez_lband_swe_code_data")
 list.files() #pwd
 
-# import corrected unwrapped phase data 
-unw_raw <-rast("unw_corrected_new_feb12-26.tif")
+# import corrected unwrapped phase data
+unw_raw <-rast("./rasters/atm_corrected_unw/unw_corrected_new_feb12-26.tif")
 plot(unw_raw)
 
-# import i_angle raster and resample to unw grid bc of slight extent difference
-lidar_inc_raw <-rast("lidar_inc_rad.tif")
+# import i_angle raster in RADIANS and resample to unw grid bc of slight extent difference
+lidar_inc_raw <-rast("./rasters/incidence_angle/lidar_inc_rad.tif")
 lidar_inc_v1 <-resample(lidar_inc_raw, unw_raw)
 
-# set crop extent and crop for better visualization
-vg_aoi <-vect("/Users/jacktarricone/ch1_jemez/vector_data/valle_grande_aoi.geojson")
-lidar_inc <-crop(lidar_inc_v1, vg_aoi)
+# set crop extent to study area and crop
+study_area <-vect("./vectors/study_area.geojson")
+lidar_inc <-crop(lidar_inc_v1, study_area)
 
 # mask and crop unwrapped phase data down to extent on new inc angle raster
-unw_crop <-crop(unw_raw, vg_aoi)
+unw_crop <-crop(unw_raw, study_area)
 unw <-mask(unw_crop, lidar_inc)
 
 # plot results
 plot(lidar_inc)
 plot(unw)
-
-####################################
-###### bring in fsca layers ########
-####################################
-
-# fsca
-fsca_raw <-rast("landsat_fsca_2-18.tif")
-
-# crop to .inc angle extent and mask
-fsca_crop <-crop(fsca_raw, ext(lidar_inc))
-fsca <-mask(fsca_crop, lidar_inc)
-plot(fsca)
-
-# create snow mask
-snow_mask <-fsca
-values(snow_mask)[values(snow_mask) > 15] = 1
-plot(snow_mask)
-# writeRaster(snow_mask,"study_area_02_18_2020_snow_mask.tif")
 
 ########################################################
 ######### converting phase change to SWE ##############
@@ -66,9 +49,10 @@ head(pit_info)
 # # calculate density
 mean_density_feb12 <- pit_info$mean_density[1]
 mean_density_feb26 <- pit_info$mean_density[3]
-# 
-# # mean density between two flights
+ 
+# mean density between two flights
 mean_density_feb12_26 <-(mean_density_feb12 + mean_density_feb26)/2
+mean_density_feb12_26
 
 # dielctric constant k
 k_feb12 <- pit_info$mean_k[1]
@@ -82,10 +66,11 @@ mean_k_feb12_26
 #### swe inversion ####
 #######################
 
-# first step, define function for insar constant
-# inc = incidence angle raster [deg]
-# wL = sensor save length [cm]
-# k = dielectric permittivty 
+#### first step, define function for insar constant
+
+# inc_angle = incidence angle raster [deg]
+# wavelength = sensor save length [cm]
+# perm = dielectric permittivty 
 
 # radar wave length from uavsar annotation file
 uavsar_wL <- 23.8403545
@@ -114,7 +99,6 @@ hist(dswe_raw, breaks = 100)
 #######################################
 
 # using swe change from the pit as "known" change point
-
 # extent around gpr transect
 gpr <-ext(-106.5255, -106.521, 35.856, 35.8594)
 dswe_crop <-crop(dswe_raw, gpr)
@@ -153,12 +137,18 @@ mean_pit_dswe
 dswe_abs <-dswe_raw - mean_pit_dswe
 plot(dswe_abs)
 hist(dswe_abs, breaks = 100)
-writeRaster(dswe_abs, "/Users/jacktarricone/ch1_jemez//rasters/p3_dswe_no_mask.tif")
 
-# mask for no snow areas
-dswe_no_snow <-mask(dswe_abs, snow_mask, maskvalue = NA)
-dswe_no_snow
-plot(dswe_no_snow)
+####################################
+###### bring in fsca layers ########
+####################################
+
+# fsca
+snow_mask <-rast("./rasters/fsca/study_area_02_18_2020_snow_mask.tif")
+
+# mask
+dswe_abs_masked <-mask(dswe_abs, snow_mask, maskvalue = NA)
+dswe_abs_masked
+plot(dswe_abs_masked)
 
 # save
-# writeRaster(dswe_abs,"./final_swe_change/dswe_feb20-26.tif")
+# writeRaster(dswe_abs_masked,"./rasters/dswe/dswe_feb12-26.tif")
