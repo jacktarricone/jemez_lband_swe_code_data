@@ -2,9 +2,8 @@
 
 This is the R and Python code used to conduct the analysis and create the figures for the forthcoming article in The Cryosphere, "Estimating snow accumulation and ablation with L-band InSAR" by Tarricone et al. Further information on the article will be updated upon publication.
 
-Author: Jack Tarricone
+Author: Jack Tarricone \\
 Contact: jtarricone@nevada.unr.edu
-
 
 A user must first unzip the downloaded file and install the libraries needed on top of each script.
 
