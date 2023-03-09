@@ -1,3 +1,10 @@
+/jemez_zenodo
+/jemez_scripts
+/in_situ
+/rasters
+/vectors
+/.DS_store
+
 # History files
 .Rhistory
 .Rapp.history
