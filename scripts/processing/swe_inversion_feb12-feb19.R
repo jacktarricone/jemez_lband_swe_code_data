@@ -30,18 +30,6 @@ unw <-mask(unw_crop, lidar_inc)
 plot(lidar_inc)
 plot(unw)
 
-####################################
-###### bring in fsca layers ########
-####################################
-
-# fsca
-snow_mask <-rast("./rasters/fsca/study_area_02_18_2020_snow_mask.tif")
-
-# masked the unwrapped phase with snow mask
-unw_snow_mask <- mask(unw, snow_mask, maskvalue = NA)
-plot(unw)
-plot(unw_snow_mask)
-
 ########################################################
 ######### converting phase change to SWE ##############
 ########################################################
@@ -139,6 +127,18 @@ dswe_abs <-dswe_raw - mean_pit_dswe
 plot(dswe_abs)
 hist(dswe_abs, breaks = 100)
 
+####################################
+###### bring in fsca layers ########
+####################################
+
+# fsca
+snow_mask <-rast("./rasters/fsca/study_area_02_18_2020_snow_mask.tif")
+
+# masked the unwrapped phase with snow mask
+dswe_abs_masked <-mask(dswe_abs, snow_mask, maskvalue = NA)
+plot(dswe_abs_masked)
+plot(dswe_abs_masked)
+
 # save
-# writeRaster(dswe_abs,"./rasters/dswe/dswe_feb12-19.tif")
+# writeRaster(dswe_abs_masked,"./rasters/dswe/dswe_feb12-19.tif")
 

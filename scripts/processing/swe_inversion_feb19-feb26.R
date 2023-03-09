@@ -10,7 +10,7 @@ setwd("path/to/jemez_lband_swe_code_data")
 list.files() #pwd
 
 # import corrected unwrapped phase data
-unw_raw <-rast("./rasters/atm_corrected_unw/unw_corrected_new_feb12-19.tif")
+unw_raw <-rast("./rasters/uavsar_p2_feb19-26/alamos_35915_20008-000_20013-000_0007d_s01_L090HH_01.unw.grd.tiff")
 plot(unw_raw)
 
 # import i_angle raster in RADIANS and resample to unw grid bc of slight extent difference
@@ -29,24 +29,6 @@ unw <-mask(unw_crop, lidar_inc)
 plot(lidar_inc)
 plot(unw)
 
-####################################
-###### bring in fsca layers ########
-####################################
-
-# fsca
-fsca_raw <-rast("landsat_fsca_2-18.tif")
-
-# crop to .inc angle extent and mask
-fsca_crop <-crop(fsca_raw, ext(lidar_inc))
-fsca <-mask(fsca_crop, lidar_inc)
-plot(fsca)
-
-# create snow mask
-snow_mask <-fsca
-values(snow_mask)[values(snow_mask) > 15] = 1
-plot(snow_mask)
-# writeRaster(snow_mask,"02_18_2020_snow_mask.tif")
-
 ########################################################
 ######### converting phase change to SWE ##############
 ########################################################
@@ -59,15 +41,15 @@ plot(snow_mask)
 
 # table ryan sent over
 ### use NSIDC data
-pit_info <-read.csv("/Users/jacktarricone/ch1_jemez/pit_data/perm_pits.csv")
+pit_info <-read.csv("./in_situ/perm_pits.csv")
 head(pit_info)
 
 # ## define static information from pits
 # # calculate density
 mean_density_feb19 <- pit_info$mean_density[2]
 mean_density_feb26 <- pit_info$mean_density[3]
-#
-# # mean density between two flights
+
+# mean density between two flights
 mean_density_feb19_26 <-(mean_density_feb19 + mean_density_feb26)/2
 mean_density_feb19_26
 
@@ -157,11 +139,18 @@ plot(dswe_abs)
 hist(dswe_abs, breaks = 100)
 # writeRaster(dswe_abs, "./no_fsca_mask/p2_dswe_no_mask.tif")
 
-# mask for no snow areas
-dswe_snow <-mask(dswe_abs, snow_mask, maskvalue = NA)
-dswe_snow
-plot(dswe_snow)
+####################################
+###### bring in fsca layers ########
+####################################
+
+# fsca
+snow_mask <-rast("./rasters/fsca/study_area_02_18_2020_snow_mask.tif")
+
+# mask
+dswe_abs_masked <-mask(dswe_abs, snow_mask, maskvalue = NA)
+dswe_abs_masked
+plot(dswe_abs_masked)
 
 # save
-writeRaster(dswe_abs,"./new_swe_change/dswe_feb19-26.tif")
+# writeRaster(dswe_abs_masked,"./rasters/dswe/dswe_feb19-26.tif")
 
