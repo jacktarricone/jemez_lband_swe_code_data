@@ -18,11 +18,10 @@ setwd("path/to/jemez_lband_swe_code_data")
 list.files() #pwd
 ```
 
-## list of scripts
-scripts/
+## List of Scripts
+
 	processing/
 		atmospheric_correction_feb12-19.R: Atmospherically correct 12-19 February unwrapped phase data
 		atmospheric_correction_feb12-26.R: Atmospherically correct 12-26 February unwrapped phase data
 		convert_amp_to_db.R:               Convert linear amplitude to decibels
-		
 		uavsar_data_download.py:		   Download UAVSAR data using uavsar_pytools
