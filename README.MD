@@ -5,9 +5,7 @@ This is the R and Python code used to conduct the analysis and create the figure
 Author: Jack Tarricone \
 Contact: jtarricone@nevada.unr.edu
 
-A user must first unzip the downloaded file and install the libraries needed on top of each script.
-
-The on top of each script, the your working directory need to b
+A user must first unzip the downloaded file, install the libraries needed on top of each script, and set working directory to unszip folder.
 
 ```
 # set path to '/jemez_lband_swe_code_data' that was downloaded and unzipped from zenodo
@@ -19,6 +17,9 @@ list.files() #pwd
 
 ## List of Scripts
 
+	create_figures/
+		create_fig07: Density plot showing atm delay for snow cover and snow free pixels
+		create_fig11: InSAR vs. (a) depth sensors, pits, (b) gpr dSWE
 	processing/
 		atmospheric_correction_feb12-19.R: Atmospherically correct 12-19 February unwrapped phase data
 		atmospheric_correction_feb12-26.R: Atmospherically correct 12-26 February unwrapped phase data
