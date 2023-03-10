@@ -12,11 +12,10 @@ library(Metrics)
 # set path to '/jemez_lband_swe_code_data' that was downloaded and unzipped from zenodo
 # all other file paths are relative
 setwd("path/to/jemez_lband_swe_code_data")
-setwd("~/ch1_jemez/jemez_lband_swe_code_data")
 list.files() #pwd
 
 # set custom plot theme
-theme_classic <- function(base_size = 11, base_family = "",
+theme_classic <-function(base_size = 11, base_family = "",
                           base_line_size = base_size / 22,
                           base_rect_size = base_size / 22) {
   theme_bw(
@@ -47,10 +46,9 @@ theme_classic <- function(base_size = 11, base_family = "",
 
 theme_set(theme_classic(14))
 
-
 #######
-## bring in swe change rasters
-rast_list <-list.files("./rasters/dswe", 
+## bring in swe change rasters masked for same pixels "sp"
+rast_list <-list.files("./rasters/dswe/sp", 
                        pattern = ".tif",
                        full.names = TRUE)
 
@@ -61,28 +59,28 @@ stack
 plot(stack)
 
 # bring in swe change data
-depth_change_csv <-read.csv("./climate_station_data/noah/insitu_depth_change_v2.csv")
+depth_change_csv <-read.csv("./in_situ/insitu_depth_change_v2.csv")
 sensor_locations <-vect(depth_change_csv, geom = c("x","y"), crs = crs(stack))
 plot(sensor_locations)
 sensor_locations$name
 
 # bring snow depth sensor locations shapefile for cropping
-loc_raw <-vect("./climate_station_data/pingers_location_new.shp")
+loc_raw <-vect("./vectors/pingers_location_new.shp")
 locations <-project(loc_raw, crs(stack))
 locations
 values(locations)
 
 # bring in BA it change data
-ba_raw <-read.csv("./pit_data/ba_swe_change.csv")
+ba_raw <-read.csv("./in_situ/ba_swe_change.csv")
 ba_location <-vect(ba_raw, geom = c("x","y"), crs = crs(stack))
 plot(ba_location, add = TRUE, col = 'red')
 ba_location
 
 # crop swe change stack, just for visualization purposes
-ext(sensorocations) # get extent
+ext(sensor_locations) # get extent
 shp_ext <-ext(-106.5323, -106.5318, 35.8884, 35.889) # make a bit bigger for plotting
-stack_crop <-crop(stack, shp_ext)
-plot(stack_crop[[4]])
+stack_crop <-terra::crop(stack, shp_ext)
+plot(stack_crop[[3]])
 points(sensor_locations, cex = 1)
 points(ba_location, col = 'red')
 
@@ -112,16 +110,11 @@ feb12_19_dswe
 colnames(feb12_19_dswe)[c(1,2,4)] <-c("name","number", "insar_feb12_19_dswe")
 feb12_19_dswe
 
-#
-test <-c(adjacent(feb12_19, cells = feb12_19_dswe$cell, directions ="8"))
-test
-
 ## feb 19-26
 feb19_26_dswe <-terra::extract(feb19_26, sensor_locations,  cells = TRUE, xy = TRUE, method = 'bilinear')
 feb19_26_dswe <-cbind(depth_change_csv$name,depth_change_csv$number, feb19_26_dswe )
 colnames(feb19_26_dswe)[c(1,2,4)] <-c("name","number","insar_feb19_26_dswe")
 feb19_26_dswe
-
 
 ## feb 12-26
 feb12_26_dswe <-terra::extract(feb12_26, sensor_locations,  cells = TRUE, xy = TRUE, method = 'bilinear')
@@ -168,8 +161,7 @@ depth_change_csv_v2
 #### convert depth to SWE for noah's depth sensors
 ##################
 
-swe_df <-depth_change_csv_v2[c(-8),] # chop of hidden valley, wacky data
-swe_df
+swe_df <-depth_change_csv_v2
 
 # new snow density, taking from interval board measurements 
 new_snow_density <- .24
@@ -179,7 +171,7 @@ swe_df$feb19_26_dswe <-swe_df$feb19_26*.24
 swe_df
 
 # read in pit data
-pit_info <-read.csv("./pit_data/perm_pits.csv")
+pit_info <-read.csv("./in_situ/perm_pits.csv")
 pit_info
 
 # calc bulk density, doesn't vary much
@@ -356,18 +348,17 @@ print(insitu)
 ######################################
 ######################################
 
-setwd("/Users/jacktarricone/ch1_jemez/")
 
 #######
 #######
 ## read in swe change data
-dswe <-rast("./gpr_rasters_ryan/new_swe_change/dswe_feb12-26_sp.tif") # 
-dswe_cm <-rast("./gpr_rasters_ryan/new_swe_change/dswe_feb12-26_cumulative.tif") # cumulative insar pair
+dswe <-rast("./rasters/dswe/sp/dswe_feb12-26_sp.tif") # 
+dswe_cm <-rast("./rasters/dswe/sp/dswe_feb12-26_cm.tif") # 
 dswe
 dswe_cm
 
 # bring in 2/12-2/26 gpr data
-gpr_feb26_minus_feb12_v1 <-rast("./gpr_swe_bias/feb26_minus_Feb12_bias_corrected1.tif")
+gpr_feb26_minus_feb12_v1 <-rast("./rasters/gpr/feb26_minus_Feb12_bias_corrected1.tif")
 gpr_feb26_minus_feb12 <-gpr_feb26_minus_feb12_v1/10 # convert to cm from mm
 plot(gpr_feb26_minus_feb12)
 hist(gpr_feb26_minus_feb12, breaks = 50)
@@ -406,6 +397,7 @@ head(cm_df)
 # gpr n pixels over o
 number <-filter(gpr_df, feb26_minus_Feb12_bias_corrected1 > 0)
 percent <-(nrow(number)/nrow(gpr_df))*100
+percent
 
 # bind the data frames
 plotting_df_gpr <-cbind(df, cm_df[,4] ,gpr_df[,4])
@@ -423,6 +415,7 @@ hist(plotting_df_gpr$dswe_insar_cm, breaks = 20)
 ####
 # plotting
 ####
+
 gpr <-ggplot(plotting_df_gpr, aes(y = dswe_insar_isce, x = dswe_gpr)) +
   geom_smooth(method = "lm", se = FALSE) +
   geom_abline(intercept = 0, slope = 1, linetype = 2) +
@@ -452,7 +445,6 @@ head(lm_df_gpr)
 names(lm_df_gpr)[1:2] <-c("y","x") # y = insar, x = gpr
 
 # test lm
-?cor
 cor(lm_df_gpr$y, lm_df_gpr$x)
 gpr_lm <-lm(lm_df_gpr$y ~ lm_df_gpr$x)
 summary(gpr_lm)
@@ -471,9 +463,10 @@ plot_grid(insitu, gpr_v2,
           nrow = 2, 
           rel_heights = c(1/2, 1/2))
 
-ggsave("./plots/correct_location_gpr_insitu_stack_v1.pdf",
-       width = 5, 
-       height = 9,
-       units = "in",
-       dpi = 500)
+# save
+# ggsave("./plots/fig012.pdf",
+#        width = 5,
+#        height = 9,
+#        units = "in",
+#        dpi = 500)
 
