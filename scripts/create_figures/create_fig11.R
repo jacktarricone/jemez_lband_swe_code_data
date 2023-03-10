@@ -464,7 +464,7 @@ plot_grid(insitu, gpr_v2,
           rel_heights = c(1/2, 1/2))
 
 # save
-# ggsave("./plots/fig012.pdf",
+# ggsave("./plots/fig11.pdf",
 #        width = 5,
 #        height = 9,
 #        units = "in",
