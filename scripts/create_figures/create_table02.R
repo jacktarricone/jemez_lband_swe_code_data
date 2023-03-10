@@ -214,7 +214,25 @@ p3_unw_vv_vg_perc_lost_vg <-round(100-(p3_unw_vv_vg_pixels/study_area_pixels)*10
 
 
 
+## create dataframe
+table02 <-data.frame("name" = c("pair1", "pair1", "pair2", "pair2","pair3", "pair3"),
+                         "Polarization" = c("HH","VV","HH","VV","HH","VV"),
+                         "FS Mean Coherence" = c(p1_cor_hh_full_mean, p1_cor_vv_vg_mean,
+                                                 p2_cor_hh_full_mean, p2_cor_vv_full_mean,
+                                                 p3_cor_hh_full_mean, p3_cor_vv_full_mean),
+                         "SA Mean Coherence" = c(p1_cor_hh_vg_mean, p2_cor_vv_vg_mean,
+                                                 p2_cor_hh_vg_mean, p2_cor_vv_vg_mean,
+                                                 p3_cor_hh_vg_mean, p3_cor_vv_vg_mean),
+                         "FS UNW Loss" = c(),
+                         "SA UNW Loss" = c())
 
+# conver to latex format
+table02 %>%
+  kbl(caption="Summary Statistics of Financial Well-Being Score by Gender and Education",
+      format="latex",
+      col.names = c("Pair","Mean","SD","Median","IQR"),
+      align="r") %>%
+  kable_minimal(full_width = F,  html_font = "Source Sans Pro")
 
 
 
