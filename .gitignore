@@ -5,6 +5,7 @@
 /vectors
 /.DS_store
 **/.DS_Store
+/plots
 
 # History files
 .Rhistory

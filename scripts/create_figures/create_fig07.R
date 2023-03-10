@@ -275,44 +275,8 @@ figure <-plot_grid(p12, p13,
 plot(figure)
 
 # # save
-# ggsave(figure,
-#        file = "./plots/fig07.pdf",
-#        width = 6,
-#        height = 7,
-#        dpi = 500)
-
-
-### correct unw data using path length and the linear estimation we generated
-
-path_length_correction <-function(unw, lkv){
-  return((unw - ((lkv * coef(lm_fit)[[2]]) + coef(lm_fit)[[1]])))
-  }
-unw_corrected <-path_length_correction(unw_masked, lkv_masked)
-plot(unw_corrected)
-
-writeRaster(unw_corrected, "unw_corrected_feb12-19.tif")
-
-# test plot with corrected data
-
-unw_corrected_df <-as.data.frame(unw_corrected, xy=TRUE, cells=TRUE, na.rm=TRUE)
-colnames(unw_corrected_df)[4] <- "unwrapped_phase"
-head(unw_corrected_df)
-
-p13 <-ggplot(unw_corrected_df, aes(x, unwrapped_phase)) +
-  geom_hex(bins = 25) +
-  scale_fill_gradient(low = "grey90", high = "red") +
-  labs(title = "Jemez Unwrapped Phase Corrected",
-       x = "Longitude (degrees)",
-       y = "Unwrapped Phase (radians)")+
-  theme(axis.line = element_line(colour = "black"),
-        panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank(),
-        panel.border = element_blank())
-print(p13)
-
-
-ggsave(p13,
-       file = "jemez_phase_corrected.png",
-       width = 6, 
-       height = 4,
-       dpi = 400)
+ggsave(figure,
+       file = "./plots/fig07.pdf",
+       width = 6,
+       height = 7,
+       dpi = 500)
