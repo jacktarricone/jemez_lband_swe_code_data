@@ -17,15 +17,18 @@ list.files() #pwd
 
 ## List of Scripts
 
-	create_figures/
-		create_fig07: Density plot showing atm delay for snow cover and snow free pixels
-		create_fig11: InSAR vs. (a) depth sensors, pits, (b) gpr dSWE
-	processing/
-		atmospheric_correction_feb12-19.R: Atmospherically correct 12-19 February unwrapped phase data
-		atmospheric_correction_feb12-26.R: Atmospherically correct 12-26 February unwrapped phase data
-		convert_amp_to_db.R:               Convert linear amplitude to decibels
-		swe_inversion_feb12-feb19.R:	   SWE inversion for 12-19 February
-		swe_inversion_feb12-feb26.R:	   SWE inversion for 19-26 February
-		swe_inversion_feb19-feb26.R:       SWE inversion for 12-26 February
-		uavsar_data_download.py:           Download UAVSAR data using uavsar_pytools
+	scripts/	
+		create_figures/
+			create_fig05:         Time series of snow depth, temp, wind speed, isolation during the study period
+			create_fig07:         Density plot showing atm delay for snow cover and snow free pixels
+			create_fig10_table04: dSWE histograms and metrics table
+			create_fig11:         InSAR vs. (a) depth sensors, pits, (b) gpr dSWE
+		processing/
+			atmospheric_correction_feb12-19.R: Atmospherically correct 12-19 February unwrapped phase data
+			atmospheric_correction_feb12-26.R: Atmospherically correct 12-26 February unwrapped phase data
+			convert_amp_to_db.R:               Convert linear amplitude to decibels
+			swe_inversion_feb12-feb19.R:	   SWE inversion for 12-19 February
+			swe_inversion_feb12-feb26.R:	   SWE inversion for 19-26 February
+			swe_inversion_feb19-feb26.R:       SWE inversion for 12-26 February
+			uavsar_data_download.py:           Download UAVSAR data using uavsar_pytools
 

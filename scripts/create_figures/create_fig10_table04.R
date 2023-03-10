@@ -1,7 +1,6 @@
-# make swe change stats table for manuscript
-# add vg, north, and south stats
+# make swe change stats (Table 4) for manuscript
+# and histograms Figure 10
 # jack tarricone
-# jan 16th, 2022
 
 library(terra)
 library(cowplot)
@@ -42,21 +41,22 @@ theme_classic <- function(base_size = 11, base_family = "",
 
 theme_set(theme_classic(14))
 
-# set working dir
-setwd("/Users/jacktarricone/ch1_jemez/gpr_rasters_ryan/new_swe_change")
-list.files()
+# set path to '/jemez_lband_swe_code_data' that was downloaded and unzipped from zenodo
+# all other file paths are relative
+setwd("path/to/jemez_lband_swe_code_data")
+list.files() #pwd
 
-# big in vg_aoi, vg_mask
-vg_aoi <-vect("/Users/jacktarricone/ch1_jemez/vector_data/valle_grande_aoi.geojson")
-vg <-vect("/Users/jacktarricone/ch1_jemez/vector_data/vg_shp.geojson")
+# big in study_area, vg_mask
+study_area <-vect("./vectors/study_area.geojson")
+vg <-vect("./vectors/vg_shp.geojson")
 
 # bring in north south raster and crop
-lidar_ns_v1 <-rast("/Users/jacktarricone/ch1_jemez/jemez_lidar/ns_aspect.tif")
-lidar_ns <-crop(lidar_ns_v1, vg_aoi)
+lidar_ns_v1 <-rast("./rasters/incidence_angle/ns_aspect.tif")
+lidar_ns <-crop(lidar_ns_v1, study_area)
 
 # test plot
 plot(lidar_ns)
-plot(vg_aoi, add = TRUE)
+plot(study_area, add = TRUE)
 plot(vg, add = TRUE)
 
 # mask ns with for area outside vg
@@ -65,24 +65,23 @@ plot(ns_no_vg)
 
 ####### load in rasters
 # pair 1
-feb12_19_r <-rast("dswe_feb12-19_sp.tif")
-p1 <-crop(feb12_19_r, vg_aoi)
+feb12_19_r <-rast("./rasters/dswe/sp/dswe_feb12-19_sp.tif")
+p1 <-crop(feb12_19_r, study_area)
 plot(p1)
-plot(no_snow_mask, col = 'red', add = TRUE)
 
 # pair 2
-feb19_26_r <-rast("dswe_feb19-26_sp.tif")
-p2 <-crop(feb19_26_r, vg_aoi)
+feb19_26_r <-rast("./rasters/dswe/sp/dswe_feb19-26_sp.tif")
+p2 <-crop(feb19_26_r, study_area)
 plot(p2)
 
 # pair 3
-feb12_26_r <-rast("dswe_feb12-26_sp.tif")
-p3 <-crop(feb12_26_r, vg_aoi)
+feb12_26_r <-rast("./rasters/dswe/sp/dswe_feb12-26_sp.tif")
+p3 <-crop(feb12_26_r, study_area)
 plot(p3)
 
 # pair 4
-feb12_26_cm_r <-rast("dswe_feb12-26_cumulative.tif")
-p4 <-crop(feb12_26_cm_r, vg_aoi)
+feb12_26_cm_r <-rast("./rasters/dswe/sp/dswe_feb12-26_cm.tif")
+p4 <-crop(feb12_26_cm_r, study_area)
 
 ## crop for vg
 p1_vg <-mask(p1, vg)
@@ -223,8 +222,6 @@ fs_stats <-data.frame("name" = c("pair1", "pair2", "pair3", "pair4"),
           "iqr" = c(p1_iqr_fs, p2_iqr_fs, p3_iqr_fs, p4_iqr_fs))
 
 fs_stats # check
-
-write.csv(fs_stats, "/Users/jacktarricone/ch1_jemez/pit_data/full_scene_swe_stats.csv")
 
 ##############
 ###   vg   ###
@@ -384,9 +381,10 @@ vg_stats
 north_stats
 south_stats
 
-
+# bind into one big table
 table <-as.data.frame(rbind(fs_stats, vg_stats, north_stats, south_stats))
 
+# conver to latex format
 table %>%
   kbl(caption="Summary Statistics of Financial Well-Being Score by Gender and Education",
       format="latex",
@@ -632,22 +630,7 @@ y.grob <- textGrob('Count',
                    gp=gpar(fontface="bold", col="black", fontsize=17), rot=90)
 
 final_p1p2 <-grid.arrange(arrangeGrob(p1p2, left = y.grob))
-
-
-ggsave2("/Users/jacktarricone/ch1_jemez/plots/dswe_p1p2_v1.pdf",
-        final_p1p1,
-       width = 18, 
-       height = 4,
-       units = "in",
-       dpi = 500)
-
-
-
-
-
-
-
-
+plot(final_p1p2)
 
 
 ####################
@@ -883,56 +866,17 @@ x.grob <- textGrob(expression(Delta ~ 'SWE (cm)'),
 y.grob <- textGrob('Count',
                    gp=gpar(fontface="bold", col="black", fontsize=17), rot=90)
 
+# stitch together
 final_p3p4 <-grid.arrange(arrangeGrob(p3p4, left = y.grob, bottom = x.grob))
 plot(final_p3p4)
 
-ggsave2("/Users/jacktarricone/ch1_jemez/plots/dswe_p3p4_v2.pdf",
-        final_p3p4,
-       width = 18, 
-       height = 4,
-       units = "in",
-       dpi = 500)
-
-### stitch both together
-
-# final_1234 <-grid.arrange(
-#   grobs = list(final_p1p2,
-#   final_p3p4),
-#   nrow = 2,
-#   heigths = c(.3,.7))
-
+# stich them all together
 final_1234 <-plot_grid(final_p1p2, final_p3p4, align = "v", nrow = 2, rel_heights = c(.48, .52))
+plot(final_1234)
 
-ggsave2("/Users/jacktarricone/ch1_jemez/plots/dswe_hist_full_v3.pdf",
-        final_1234,
-        width = 18, 
-        height = 8,
-        units = "in",
-        dpi = 500)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+# ggsave2("./plots/fig10.pdf",
+#         final_1234,
+#         width = 18, 
+#         height = 8,
+#         units = "in",
+#         dpi = 500)
