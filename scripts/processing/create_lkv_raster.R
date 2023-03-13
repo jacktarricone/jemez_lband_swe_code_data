@@ -16,11 +16,10 @@ list.files() #pwd
 # in ENU (east, north, up) components.
 
 
-
 # up in meters
-up <-rast("/Users/jacktarricone/ch1_jemez_data/feb12-19_slc/BU/geocoded_up.tif")
-up
-plot(up)
+east <-rast("./rasters/lvk/alamos_35915_01_BU_s1_2x8.lkv.x.tif")
+east
+plot(east)
 
 # north in meters
 north <-rast("/Users/jacktarricone/ch1_jemez_data/feb12-19_slc/BU/geocoded_north.tif")
@@ -33,18 +32,18 @@ east
 plot(east)
 
 # function triangulate distance to plane from up and east rasters
-plv_km_convert <-function(east_rast, up_rast, north_rast){
+lvk_km_convert <-function(east_rast, up_rast, north_rast){
   
-  plv_m <-((east_rast^2)+(up_rast^2)+(north_rast^2))^.5
-  plot(plv_m)
-  plv_km <-plv_m/1000
-  return(plv_km)
+  lvk_m <-((east_rast^2)+(up_rast^2)+(north_rast^2))^.5
+  plot(lvk_m)
+  lvk_km <-lvk_m/1000
+  return(lvk_km)
   
 }
 
 # convert
-plv_km <-plv_km_convert(east,up,north)
-values(plv_km)[values(plv_km) == 0] = NA
-plot(plv_km)
-plv_km
-# writeRaster(plv_km, "plv_km_good.tif")
+lvk_km <-lvk_km_convert(east,up,north)
+values(lvk_km)[values(lvk_km) == 0] = NA
+plot(lvk_km)
+lvk_km
+# writeRaster(lvk_km, "lvk_km_good.tif")
