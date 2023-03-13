@@ -1,6 +1,6 @@
 # jemez_lband_swe_code_data
 
-This is the R and Python code and data used to conduct the analysis and create the figures for the forthcoming article in The Cryosphere, "Estimating snow accumulation and ablation with L-band InSAR" by Tarricone et al. Further information on the article will be updated upon publication.
+This is the code (R and Python) and data used to conduct the analysis and create the figures for the forthcoming article in The Cryosphere, "Estimating snow accumulation and ablation with L-band InSAR" by Tarricone et al. Further information on the article will be updated upon publication.
 
 Author: Jack Tarricone \
 Contact: jtarricone@nevada.unr.edu
