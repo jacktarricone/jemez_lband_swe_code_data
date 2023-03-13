@@ -37,8 +37,6 @@ library(insol) # https://rdrr.io/cran/insol/man/cgrad.html
 
 #########################################################################
 
-  
-  
 # bring in lidar dem with raster not terra
 # switched back to using the raster package bc cgrad can injest only rasters not SpatRasters!
 # lidar_dem <-raster("/Users/jacktarricone/ch1_jemez_data/jemez_lidar/valles_elev_filt.img")
@@ -51,94 +49,66 @@ library(insol) # https://rdrr.io/cran/insol/man/cgrad.html
 # writeRaster(lidar_crop, "/Users/jacktarricone/ch1_jemez_data/jemez_lidar/jemez_lidar_crop.tif")
 
 # bring in lidar crop
-lidar_crop <-raster("./rasters/dem/jemez_lidar_crop.tif")
-lidar_crop
-plot(lidar_crop, col = terrain.colors(3000)) # test, good
-
-# plv <-rast("/Volumes/JT/projects/uavsar/jemez/look_vector/plv_km_good.tif")
-# 
-# lidar_sp <-rast(lidar_crop)
-# test_resamp <-resample(lidar_sp, plv, method = "bilinear")
-# plot(plv)
-# plot(test_resamp, add = TRUE)
+## use raster not rast
+lidar_dem <-raster("./rasters/dem/jemez_lidar_crop.tif")
+plot(lidar_dem, col = terrain.colors(3000)) # test, good
 
 ########
 # calculate the gradient in all three dimensions
 # this function create a matrix for the x,y,z competent of a unit vector
 ########
 
-# ?cgrad
-
-grad_mat <-cgrad(lidar_crop, 1, 1, cArea = FALSE)
+grad_mat <-cgrad(lidar_dem, 1, 1, cArea = FALSE)
 
 # make individual raster layer for each competent
 # and geocode back to original crop extent
 # switch back to terra
-lidar_crop_spat <-rast(lidar_crop)
+lidar_crop_spat <-rast(lidar_dem)
 crop_ext_sr <-ext(359000, 374000, 3965000, 3980000) # for spatrast
 
 ## x
-x_comp <-rast(grad_mat[,,1], crs = crs(lidar_crop))
+x_comp <-rast(grad_mat[,,1], crs = crs(lidar_dem))
 ext(x_comp) <-ext(crop_ext_sr)
 plot(x_comp)
 
 ## y
-y_comp <-rast(grad_mat[,,2], crs = crs(lidar_crop))
+y_comp <-rast(grad_mat[,,2], crs = crs(lidar_dem))
 ext(y_comp) <-ext(crop_ext_sr)
 plot(y_comp)
 
 ## z
-z_comp <-rast(grad_mat[,,3], crs = crs(lidar_crop))
+z_comp <-rast(grad_mat[,,3], crs = crs(lidar_dem))
 ext(z_comp) <-ext(crop_ext_sr)
 plot(z_comp)
 
 #################################
-# bring in path length vector data
+# bring in look vector data #####
 #################################
 
-# final radar path length file
-plv_km <-rast("/Users/jacktarricone/ch1_jemez_data/gpr_rasters_ryan/plv_km.tif")
-plv_km
-plot(plv_km)
-plv_m <-plv_km*1000
+# read in lvk file we made before
+lvk_km <-rast("./rasters/lvk/lkv_km.tif")
+lvk_m <-lvk_km*1000
+plot(lvk_km)
 
 # east
-radar_east_raw <-rast("/Users/jacktarricone/ch1_jemez_data/feb12-19_slc/BU/geocoded_east.tif")
-values(radar_east_raw)[values(radar_east_raw) == 0] = NA # 0 to NaN
+radar_east_raw <-rast("./rasters/lvk/alamos_35915_01_BU_s1_2x8.lkv.y.tif")
 plot(radar_east_raw)
 
 # north
-radar_north_raw <-rast("/Users/jacktarricone/ch1_jemez_data/feb12-19_slc/BU/geocoded_north.tif")
-values(radar_north_raw)[values(radar_north_raw) == 0] = NA # 0 to NaN
+radar_north_raw <-rast("./rasters/lvk/alamos_35915_01_BU_s1_2x8.lkv.x.tif")
 plot(radar_north_raw)
 
 # up
-radar_up_raw <-rast("/Users/jacktarricone/ch1_jemez_data/feb12-19_slc/BU/geocoded_up.tif")
-values(radar_up_raw )[values(radar_up_raw) == 0] = NA # 0 to NaN
+radar_up_raw <-rast("./rasters/lvk/alamos_35915_01_BU_s1_2x8.lkv.y.tif")
 plot(radar_up_raw)
 
-#####
-# resample radar vector components up to 5.6m
-#####
-
-radar_east <-resample(radar_east_raw, plv_m, method = "bilinear")
-# writeRaster(radar_east, "/Volumes/JT/projects/uavsar/jemez/new_inc/radar_east_5.6.tif")
-radar_north <-resample(radar_north_raw, plv_m, method = "bilinear")
-# writeRaster(radar_north, "/Volumes/JT/projects/uavsar/jemez/new_inc/radar_north_5.6.tif")
-radar_up <-resample(radar_up_raw, plv_m, method = "bilinear")
-# writeRaster(radar_up, "/Volumes/JT/projects/uavsar/jemez/new_inc/radar_up_5.6.tif")
 
 ######
 # resample surface vector components up to 5.6m
 ######
-
-x_rs <-resample(x_comp, plv_m, method = "bilinear")
-# writeRaster(x_rs, "/Volumes/JT/projects/uavsar/jemez/new_inc/surface_x_5.6.tif")
-y_rs <-resample(y_comp, plv_m, method = "bilinear")
-# writeRaster(y_rs, "/Volumes/JT/projects/uavsar/jemez/new_inc/surface_y_5.6.tif")
-z_rs <-resample(z_comp, plv_m, method = "bilinear")
-# writeRaster(z_rs, "/Volumes/JT/projects/uavsar/jemez/new_inc/surface_z_5.6.tif")
-
+x_rs <-resample(x_comp, lvk_m, method = "bilinear")
+y_rs <-resample(y_comp, lvk_m, method = "bilinear")
+z_rs <-resample(z_comp, lvk_m, method = "bilinear")
 
 
 # cos^-1((y_rs*radar_north+x_rs*radar_east+z_rs*radar_up)/(distance calc through atm for each vector))
@@ -149,7 +119,7 @@ plot(dot_prod)
 
 # compute the dot product to get a inc. angle in radians
 # make sure to put the negative sign!
-inc_ang_rad <-(acos)(-dot_prod/(plv_km*1000))
+inc_ang_rad <-(acos)(-dot_prod/(lvk_km*1000))
 plot(inc_ang_rad)
 inc_ang_deg <-inc_ang_rad*(180/pi)
 plot(inc_ang_deg)
