@@ -81,6 +81,8 @@ z_comp <-rast(grad_mat[,,3], crs = crs(lidar_dem))
 ext(z_comp) <-ext(crop_ext_sr)
 plot(z_comp)
 
+rm(grad_mat)
+
 #################################
 # bring in look vector data #####
 #################################
@@ -90,31 +92,49 @@ lvk_km <-rast("./rasters/lvk/lkv_km.tif")
 lvk_m <-lvk_km*1000
 plot(lvk_km)
 
+# lidar latlon
+lidar_ll <-project(lidar_crop_spat, crs(lvk_km))
+plot(lidar_ll)
+
 # east
-radar_east_raw <-rast("./rasters/lvk/alamos_35915_01_BU_s1_2x8.lkv.y.tif")
-plot(radar_east_raw)
+radar_east <-rast("./rasters/lvk/alamos_35915_01_BU_s1_2x8.lkv.y.tif")
 
 # north
-radar_north_raw <-rast("./rasters/lvk/alamos_35915_01_BU_s1_2x8.lkv.x.tif")
-plot(radar_north_raw)
+radar_north <-rast("./rasters/lvk/alamos_35915_01_BU_s1_2x8.lkv.x.tif")
 
 # up
-radar_up_raw <-rast("./rasters/lvk/alamos_35915_01_BU_s1_2x8.lkv.y.tif")
-plot(radar_up_raw)
-
+radar_up <-rast("./rasters/lvk/alamos_35915_01_BU_s1_2x8.lkv.y.tif")
 
 ######
-# resample surface vector components up to 5.6m
+# resample to uavsar grid
 ######
-x_rs <-resample(x_comp, lvk_m, method = "bilinear")
-y_rs <-resample(y_comp, lvk_m, method = "bilinear")
-z_rs <-resample(z_comp, lvk_m, method = "bilinear")
+# x
+x_rs_v1 <-project(x_comp, lvk_m, method = "bilinear")
+x_rs <-resample(x_rs_v1, lvk_m, method = "bilinear")
 
+# y
+y_rs_v1 <-project(y_comp, lvk_m, method = "bilinear")
+y_rs <-resample(y_rs_v1, lvk_m, method = "bilinear")
 
+# z
+z_rs_v1 <-project(z_comp, lvk_m, method = "bilinear")
+z_rs <-resample(z_rs_v1, lvk_m, method = "bilinear")
+
+# crop
+x_rs_c <-crop(x_rs, lidar_ll)
+rn_c <-crop(radar_east, lidar_ll)
+
+y_rs_c <-crop(y_rs, lidar_ll)
+re_c <-crop(radar_north, lidar_ll)
+
+z_rs_c <-crop(z_rs, lidar_ll)
+ru_c <-crop(radar_up, lidar_ll)
+
+### dot product formula
 # cos^-1((y_rs*radar_north+x_rs*radar_east+z_rs*radar_up)/(distance calc through atm for each vector))
 
 # calculate surface normal
-dot_prod <-(y_rs*radar_north + x_rs*radar_east + z_rs*radar_up)
+dot_prod <-(y_rs_c*rn_c + x_rs_c*re_c+ z_rs_c*ru_c)
 plot(dot_prod)
 
 # compute the dot product to get a inc. angle in radians
@@ -124,8 +144,9 @@ plot(inc_ang_rad)
 inc_ang_deg <-inc_ang_rad*(180/pi)
 plot(inc_ang_deg)
 
-writeRaster(inc_ang_deg, "/Users/jacktarricone/ch1_jemez_data/gpr_rasters_ryan/lidar_inc_deg.tif")
-writeRaster(inc_ang_rad, "/Users/jacktarricone/ch1_jemez_data/gpr_rasters_ryan/lidar_inc_rad.tif")
+## save
+# writeRaster(inc_ang_deg, "./rasters/incidence_angle/lidar_inc_deg.tif")
+# writeRaster(inc_ang_rad, "./rasters/incidence_angle/lidar_inc_rad.tif")
 
 
 
