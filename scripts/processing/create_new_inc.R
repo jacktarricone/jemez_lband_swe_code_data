@@ -1,3 +1,4 @@
+# create new incidence angle data from lidar dem and geocoded lvk from SLC data
 # jack tarricone
 
 ####
@@ -34,7 +35,6 @@ library(insol) # https://rdrr.io/cran/insol/man/cgrad.html
 # packages in r or python for calculating gradients and surface normals
 
 
-
 #########################################################################
 
 # bring in lidar dem with raster not terra
@@ -63,22 +63,22 @@ grad_mat <-cgrad(lidar_dem, 1, 1, cArea = FALSE)
 # make individual raster layer for each competent
 # and geocode back to original crop extent
 # switch back to terra
-lidar_crop_spat <-rast(lidar_dem)
+lidar_rast <-rast(lidar_dem)
 crop_ext_sr <-ext(359000, 374000, 3965000, 3980000) # for spatrast
 
 ## x
-x_comp <-rast(grad_mat[,,1], crs = crs(lidar_dem))
-ext(x_comp) <-ext(crop_ext_sr)
+x_comp <-rast(grad_mat[,,1], crs = crs(lidar_rast))
+ext(x_comp) <-ext(lidar_rast)
 plot(x_comp)
 
 ## y
-y_comp <-rast(grad_mat[,,2], crs = crs(lidar_dem))
-ext(y_comp) <-ext(crop_ext_sr)
+y_comp <-rast(grad_mat[,,2], crs = crs(lidar_rast))
+ext(y_comp) <-ext(lidar_rast)
 plot(y_comp)
 
 ## z
-z_comp <-rast(grad_mat[,,3], crs = crs(lidar_dem))
-ext(z_comp) <-ext(crop_ext_sr)
+z_comp <-rast(grad_mat[,,3], crs = crs(lidar_rast))
+ext(z_comp) <-ext(lidar_rast)
 plot(z_comp)
 
 rm(grad_mat)
@@ -97,50 +97,52 @@ lidar_ll <-project(lidar_crop_spat, crs(lvk_km))
 plot(lidar_ll)
 
 # east
-radar_east <-rast("./rasters/lvk/alamos_35915_01_BU_s1_2x8.lkv.y.tif")
+radar_east_v1 <-rast("./rasters/lvk/alamos_35915_01_BU_s1_2x8.lkv.y.tif")
+radar_east <-resample(radar_east_v1, lvk_m)
 
 # north
-radar_north <-rast("./rasters/lvk/alamos_35915_01_BU_s1_2x8.lkv.x.tif")
+radar_north_v1 <-rast("./rasters/lvk/alamos_35915_01_BU_s1_2x8.lkv.x.tif")
+radar_north <-resample(radar_north_v1, lvk_m)
 
 # up
-radar_up <-rast("./rasters/lvk/alamos_35915_01_BU_s1_2x8.lkv.y.tif")
+radar_up_v1 <-rast("./rasters/lvk/alamos_35915_01_BU_s1_2x8.lkv.z.tif")
+radar_up <-resample(radar_up_v1, lvk_m)
 
 ######
 # resample to uavsar grid
 ######
 # x
-x_rs_v1 <-project(x_comp, lvk_m, method = "bilinear")
-x_rs <-resample(x_rs_v1, lvk_m, method = "bilinear")
+x_rs_v1 <-project(x_comp, radar_east, method = "bilinear")
+x_rs <-resample(x_rs_v1, radar_east, method = "bilinear")
+x_rs
+radar_east
 
 # y
-y_rs_v1 <-project(y_comp, lvk_m, method = "bilinear")
-y_rs <-resample(y_rs_v1, lvk_m, method = "bilinear")
+y_rs_v1 <-project(y_comp, radar_north, method = "bilinear")
+y_rs <-resample(y_rs_v1, radar_north, method = "bilinear")
+y_rs
+radar_north
 
 # z
-z_rs_v1 <-project(z_comp, lvk_m, method = "bilinear")
-z_rs <-resample(z_rs_v1, lvk_m, method = "bilinear")
-
-# crop
-x_rs_c <-crop(x_rs, lidar_ll)
-rn_c <-crop(radar_east, lidar_ll)
-
-y_rs_c <-crop(y_rs, lidar_ll)
-re_c <-crop(radar_north, lidar_ll)
-
-z_rs_c <-crop(z_rs, lidar_ll)
-ru_c <-crop(radar_up, lidar_ll)
+z_rs_v1 <-project(z_comp, radar_up, method = "bilinear")
+z_rs <-resample(z_rs_v1, radar_up, method = "bilinear")
+z_rs
+radar_up
 
 ### dot product formula
 # cos^-1((y_rs*radar_north+x_rs*radar_east+z_rs*radar_up)/(distance calc through atm for each vector))
 
 # calculate surface normal
-dot_prod <-(y_rs_c*rn_c + x_rs_c*re_c+ z_rs_c*ru_c)
+dot_prod <-(y_rs*radar_north + x_rs*radar_east+ z_rs*radar_up)
 plot(dot_prod)
 
 # compute the dot product to get a inc. angle in radians
 # make sure to put the negative sign!
-inc_ang_rad <-(acos)(-dot_prod/(lvk_km*1000))
+## rad
+inc_ang_rad <-(acos)(-dot_prod/(lvk_m))
 plot(inc_ang_rad)
+
+# deg
 inc_ang_deg <-inc_ang_rad*(180/pi)
 plot(inc_ang_deg)
 
