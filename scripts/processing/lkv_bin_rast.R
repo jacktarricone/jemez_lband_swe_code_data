@@ -37,6 +37,6 @@ lon <-rast(matrix(llh_mat[seq(2, nrow(llh_mat),3),], nrow = 8628, byrow = TRUE))
 ele <-rast(matrix(llh_mat[seq(3, nrow(llh_mat),3),], nrow = 8628, byrow = TRUE))
 
 # save
-writeRaster(east, "./rasters/lkv/east.tif")
+makeVRT(east, "./rasters/lvk/east.vrt")
 writeRaster(west, "./rasters/lkv/west.tif")
 writeRaster(up, "./rasters/lkv/up.tif")
