@@ -29,10 +29,10 @@ list.files() #pwd
 			convert_amp_to_db.R:               Convert linear amplitude to decibels
 			create_lkv_raster.R:               Make geocoded LVK rasters
 			create_new_inc.R:                  Make new lidar-derived incidence angle raster
-			fsca_stats.R:					   Generate fSCA stats
+			fsca_stats.R:                      Generate fSCA stats
 			geolocate_lvk_jemez.py:	           Geolocate SLC data using uavsar_pytools
-			insar_swe_functions.R:			   SWE inversion function
-			landsat_fsca_processing.R:		   Formatting fSCA data
+			insar_swe_functions.R:             SWE inversion function
+			landsat_fsca_processing.R:         Formatting fSCA data
 			no_snow_swe_uncert_analysis.R      Calculate no snow SWE change for uncertainty analysis
 			swe_inversion_feb12-feb19.R:	   SWE inversion for 12-19 February
 			swe_inversion_feb12-feb26.R:	   SWE inversion for 19-26 February
