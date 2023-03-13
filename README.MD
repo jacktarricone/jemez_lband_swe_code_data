@@ -1,6 +1,6 @@
 # jemez_lband_swe_code_data
 
-This is the R and Python code used to conduct the analysis and create the figures for the forthcoming article in The Cryosphere, "Estimating snow accumulation and ablation with L-band InSAR" by Tarricone et al. Further information on the article will be updated upon publication.
+This is the R and Python code and data used to conduct the analysis and create the figures for the forthcoming article in The Cryosphere, "Estimating snow accumulation and ablation with L-band InSAR" by Tarricone et al. Further information on the article will be updated upon publication.
 
 Author: Jack Tarricone \
 Contact: jtarricone@nevada.unr.edu
@@ -16,17 +16,24 @@ list.files() #pwd
 ```
 
 ## List of Scripts
-
 	scripts/	
 		create_figures/
-			create_fig05:         Time series of snow depth, temp, wind speed, isolation during the study period
-			create_fig07:         Density plot showing atm delay for snow cover and snow free pixels
-			create_fig10_table04: dSWE histograms and metrics table
-			create_fig11:         InSAR vs. (a) depth sensors, pits, (b) gpr dSWE
-		processing/
+			create_fig05:                      Time series of snow depth, temp, wind speed, isolation during the study period
+			create_fig07:                      Density plot showing atm delay for snow cover and snow free pixels
+			create_fig10_table04:              dSWE histograms and metrics table
+			create_fig11:                      InSAR vs. (a) depth sensors, pits, (b) gpr dSWE
+		processing/  
 			atmospheric_correction_feb12-19.R: Atmospherically correct 12-19 February unwrapped phase data
 			atmospheric_correction_feb12-26.R: Atmospherically correct 12-26 February unwrapped phase data
+			categorize_aspect_raster.R:        Bin DEM into north and south facing slopes
 			convert_amp_to_db.R:               Convert linear amplitude to decibels
+			create_lkv_raster.R:               Make geocoded LVK rasters
+			create_new_inc.R:                  Make new lidar-derived incidence angle raster
+			fsca_stats.R:					   Generate fSCA stats
+			geolocate_lvk_jemez.py:	           Geolocate SLC data using uavsar_pytools
+			insar_swe_functions.R:			   SWE inversion function
+			landsat_fsca_processing.R:		   Formatting fSCA data
+			no_snow_swe_uncert_analysis.R      Calculate no snow SWE change for uncertainty analysis
 			swe_inversion_feb12-feb19.R:	   SWE inversion for 12-19 February
 			swe_inversion_feb12-feb26.R:	   SWE inversion for 19-26 February
 			swe_inversion_feb19-feb26.R:       SWE inversion for 12-26 February
