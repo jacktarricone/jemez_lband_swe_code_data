@@ -6,6 +6,7 @@
 /.DS_store
 **/.DS_Store
 /plots
+.ipynb_checkpoints/
 
 # History files
 .Rhistory

@@ -226,6 +226,7 @@ table02 <-data.frame("name" = c("pair1", "pair1", "pair2", "pair2","pair3", "pai
                          "FS UNW Loss" = c(),
                          "SA UNW Loss" = c())
 
+
 # conver to latex format
 table02 %>%
   kbl(caption="Summary Statistics of Financial Well-Being Score by Gender and Education",
