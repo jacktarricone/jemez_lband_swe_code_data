@@ -17,9 +17,9 @@ list.files() #pwd
 
 ## List of Scripts
 	rasters/
-    	amplitude/                             UAVSAR amplitude data from 12, 19, and 26 February
+        amplitude/                             UAVSAR amplitude data from 12, 19, and 26 February
         atm_corrected_unw/                     Atmospherically corrected UAVSAR UNW
-		dem/                                   Lidar DEM
+        dem/                                   Lidar DEM
         dswe/                                  InSAR-derived dSWE data
         fsca/                                  Landsat fSCA from 18 February and 5 March
         gpr/                                   GPR dSWE data

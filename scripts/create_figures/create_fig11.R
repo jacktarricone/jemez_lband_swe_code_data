@@ -1,5 +1,4 @@
 # in situ snow depth vs. insar swe
-# august 1st, 2022
 # jack tarricone
 
 library(terra)
@@ -16,8 +15,8 @@ list.files() #pwd
 
 # set custom plot theme
 theme_classic <-function(base_size = 11, base_family = "",
-                          base_line_size = base_size / 22,
-                          base_rect_size = base_size / 22) {
+                         base_line_size = base_size / 22,
+                         base_rect_size = base_size / 22) {
   theme_bw(
     base_size = base_size,
     base_family = base_family,
@@ -56,7 +55,7 @@ rast_list <-list.files("./rasters/dswe/sp",
 stack <-rast(rast_list)
 sources(stack) # check paths
 stack
-plot(stack)
+plot(stack[[1]])
 
 # bring in swe change data
 depth_change_csv <-read.csv("./in_situ/insitu_depth_change_v2.csv")
@@ -71,10 +70,10 @@ locations
 values(locations)
 
 # bring in BA it change data
-ba_raw <-read.csv("./in_situ/ba_swe_change.csv")
-ba_location <-vect(ba_raw, geom = c("x","y"), crs = crs(stack))
-plot(ba_location, add = TRUE, col = 'red')
-ba_location
+pits_raw <-read.csv("./in_situ/pits_swe_change.csv")
+pits_location <-vect(ba_raw, geom = c("x","y"), crs = crs(stack))
+plot(pits_location, add = TRUE, col = 'red')
+pits_location
 
 # crop swe change stack, just for visualization purposes
 ext(sensor_locations) # get extent
@@ -82,7 +81,7 @@ shp_ext <-ext(-106.5323, -106.5318, 35.8884, 35.889) # make a bit bigger for plo
 stack_crop <-terra::crop(stack, shp_ext)
 plot(stack_crop[[3]])
 points(sensor_locations, cex = 1)
-points(ba_location, col = 'red')
+points(pits_location, col = 'red')
 
 # rasters from orginal stack
 feb12_19 <-stack[[1]]
@@ -122,29 +121,31 @@ feb12_26_dswe <-cbind(depth_change_csv$name,depth_change_csv$number, feb12_26_ds
 colnames(feb12_26_dswe)[c(1,2,4)] <-c("name","number","insar_feb12_26_dswe")
 feb12_26_dswe
 
-#### BA pit
+#### pits
 ## feb 12-19
-ba_feb12_19_dswe <-terra::extract(feb12_19, ba_location,  cells = TRUE, xy = TRUE, method = 'bilinear')
-colnames(ba_feb12_19_dswe)[2] <-"insar_feb12_19_dswe"
-ba_feb12_19_dswe
+pits_feb12_19_dswe <-terra::extract(feb12_19, pits_location,  cells = TRUE, xy = TRUE, method = 'bilinear')
+colnames(pits_feb12_19_dswe)[2] <-"insar_feb12_19_dswe"
+pits_feb12_19_dswe
 
 ## feb 19-26
-ba_feb19_26_dswe <-terra::extract(feb19_26, ba_location,  cells = TRUE, xy = TRUE, method = 'bilinear')
-colnames(ba_feb19_26_dswe)[2] <-"insar_feb19_26_dswe"
-ba_feb19_26_dswe
+pits_feb19_26_dswe <-terra::extract(feb19_26, pits_location,  cells = TRUE, xy = TRUE, method = 'bilinear')
+colnames(pits_feb19_26_dswe)[2] <-"insar_feb19_26_dswe"
+pits_feb19_26_dswe
 
 ## feb 12-26
-ba_feb12_26_dswe <-terra::extract(feb12_26, ba_location,  cells = TRUE, xy = TRUE, method = 'bilinear')
-colnames(ba_feb12_26_dswe)[2] <-"insar_feb12_26_dswe"
-ba_feb12_26_dswe
+pits_feb12_26_dswe <-terra::extract(feb12_26, pits_location,  cells = TRUE, xy = TRUE, method = 'bilinear')
+colnames(pits_feb12_26_dswe)[2] <-"insar_feb12_26_dswe"
+pits_feb12_26_dswe
 
-# rbind BA data to insar change csvs
-ba_dswe <-cbind(ba_raw, ba_feb12_19_dswe$insar_feb12_19_dswe, 
-                ba_feb19_26_dswe$insar_feb19_26_dswe, ba_feb12_26_dswe$insar_feb12_26_dswe)
+# rbind pits data to insar change csvs
+pits_dswe <-cbind(pits_raw, pits_feb12_19_dswe$insar_feb12_19_dswe, 
+                pits_feb19_26_dswe$insar_feb19_26_dswe, pits_feb12_26_dswe$insar_feb12_26_dswe)
+
+pits_dswe
 
 # rename binded colums
-names(ba_dswe)[7:9] <-c("insar_feb12_19_dswe","insar_feb19_26_dswe","insar_feb12_26_dswe")
-ba_dswe
+names(pits_dswe)[7:9] <-c("insar_feb12_19_dswe","insar_feb19_26_dswe","insar_feb12_26_dswe")
+pits_dswe
 
 # create new df
 depth_change_csv_v2 <-cbind(depth_change_csv, feb12_19_dswe$insar_feb12_19_dswe, feb19_26_dswe$insar_feb19_26_dswe,
@@ -231,31 +232,31 @@ plotting_df
 # write.csv(plotting_df, "/Users/jacktarricone/ch1_jemez_data/climate_station_data/noah/insitu_insar_swe_change_plotting_df.csv")
 
 ######################
-#### ba formatting ###
+#### pits formatting ###
 ######################
 
 # meta data
-ba_meta <-rbind(ba_dswe[1:3],ba_dswe[1:3],ba_dswe[1:3])
+pits_meta <-rbind(pits_dswe[1:3],pits_dswe[1:3],pits_dswe[1:3])
 
-# format BA dataframe for plotting
-date_ba <-c(names(ba_dswe[4]), names(ba_dswe[5]), names(ba_dswe[6])) # make vector
+# format pits dataframe for plotting
+date_pits <-c(names(pits_dswe[4]), names(pits_dswe[5]), names(pits_dswe[6])) # make vector
 
 # bind
-add_data_ba <-cbind(date_ba,ba_meta)
+add_data_pits <-cbind(date_pits,pits_meta)
 
 # make swe data column in proper order
-ba_insar_dswe <-c(ba_dswe$insar_feb12_19_dswe,
-               ba_dswe$insar_feb19_26_dswe,
-               ba_dswe$insar_feb12_26_dswe)
+pits_insar_dswe <-c(pits_dswe$insar_feb12_19_dswe,
+                    pits_dswe$insar_feb19_26_dswe,
+                    pits_dswe$insar_feb12_26_dswe)
 
 # make insitu column
-ba_insitu_dswe <-c(ba_dswe$feb12_19,
-                   ba_dswe$feb19_26,
-                   ba_dswe$feb12_26)
+pits_insitu_dswe <-c(pits_dswe$feb12_19,
+                     pits_dswe$feb19_26,
+                     pits_dswe$feb12_26)
 
 # bind together
-ba_plotting_df <-cbind(add_data_ba,ba_insar_dswe,ba_insitu_dswe)
-ba_plotting_df
+pits_plotting_df <-cbind(add_data_pits,pits_insar_dswe,pits_insitu_dswe)
+pits_plotting_df
 
 
 #####################
