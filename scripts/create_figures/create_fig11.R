@@ -229,6 +229,11 @@ insitu_error<-c(swe_df$feb12_19_dswe_error,
 # bind together
 plotting_df <-cbind(add_date,insar_dswe,insitu_dswe,insitu_error)
 plotting_df
+
+## separate czo and hq
+czo_plotting_df <-filter(plotting_df, name != "vg_snow_depth_cm")
+hq_plotting_df <-filter(plotting_df, name == "vg_snow_depth_cm")
+
 # write.csv(plotting_df, "/Users/jacktarricone/ch1_jemez_data/climate_station_data/noah/insitu_insar_swe_change_plotting_df.csv")
 
 ######################
@@ -271,12 +276,12 @@ lm_df <-plotting_df[-c(1:5)]
 lm_df
 
 # add ba pit data 
-ba_dat <-cbind(ba_plotting_df[-c(1:4)], rep(NA,3))
-colnames(ba_dat) <-colnames(lm_df) 
-ba_dat
+pits_dat <-cbind(pits_plotting_df[-c(1:4)], rep(NA,3))
+colnames(pits_dat) <-colnames(lm_df) 
+pits_dat
 
 # bbind
-lm_df_v2 <-rbind(lm_df, ba_dat)
+lm_df_v2 <-rbind(lm_df, pits_dat)
 lm_df_v2
 names(lm_df_v2)[1:2] <-c("y","x") # y = insar, x = insitu
 
@@ -298,8 +303,8 @@ lm_eqn <- function(df){
 
 
 
-# plot
-p <-ggplot(plotting_df, aes(x = insitu_dswe, y = insar_dswe)) +
+# plot czo
+p <-ggplot(czo_plotting_df, aes(x = insitu_dswe, y = insar_dswe)) +
   geom_abline(intercept = 0, slope = 1, linetype = 2) +
   geom_smooth(method = "lm", se = FALSE) +
   geom_errorbar(aes(y= insar_dswe, xmin=insitu_dswe-abs(insitu_error), xmax=insitu_dswe+abs(insitu_error)), 
@@ -314,13 +319,26 @@ p <-ggplot(plotting_df, aes(x = insitu_dswe, y = insar_dswe)) +
                      labels = c('Feb. 12-19', 'Feb. 19-26', 'Feb. 12-26'))+
   scale_fill_discrete(breaks=c('B', 'C', 'A'))  +
   theme_classic(15) +
-  theme(panel.border = element_rect(colour = "black", fill=NA, linewidth =1)) +
-  theme(legend.position = c(.80,.20))
+  theme(panel.border = element_rect(colour = "black", fill=NA, linewidth =1), 
+        legend.position = c(.80,.20))
 
-p2 <- p + geom_point(data = ba_plotting_df, aes(x = ba_insitu_dswe, y = ba_insar_dswe), 
-                     color = my_colors, shape = 8, size = 4)  
+print(p)
 
-print(p2)
+# add hq and change symbol
+p2 <- p + geom_errorbar(data = hq_plotting_df, aes(y= insar_dswe, xmin=insitu_dswe-abs(insitu_error), xmax=insitu_dswe+abs(insitu_error)), 
+                width=0.1, colour = 'black', alpha=0.4, size=.5) +
+          geom_point(data = hq_plotting_df, aes(x = insitu_dswe, y = insar_dswe), 
+                color = my_colors, shape = 17, size = 2)
+
+plot(p2)
+
+## set color
+colors_v2 <-rep(my_colors, 2)
+
+p3 <- p2 + geom_point(data = pits_plotting_df, aes(x = pits_insitu_dswe, y = pits_insar_dswe), 
+                     color = colors_v2, shape = 8, size = 4)  
+
+print(p3)
 
 
 # create stats and make text labesl
@@ -330,9 +348,9 @@ rmse_lab <-paste0("RMSE = ",rmse," cm")
 mae_lab <-paste0("MAE = ",mae," cm") 
 
 # add labels
-insitu <- p2 + geom_label(x = -4.5, y = 5.5, label = lm_eqn(lm_df_v2), parse = TRUE, label.size = NA, fontface = "bold") +
-           geom_label(x = -4.5, y = 6.8, label = rmse_lab, label.size = NA, fontface = "bold") +
-           geom_label(x = -4.5, y = 8.1, label = mae_lab, label.size = NA, fontface = "bold") 
+insitu <- p3 + geom_label(x = -4.5, y = 5.5, label = lm_eqn(lm_df_v2), parse = TRUE, label.size = NA, fontface = "bold") +
+               geom_label(x = -4.5, y = 6.8, label = rmse_lab, label.size = NA, fontface = "bold") +
+               geom_label(x = -4.5, y = 8.1, label = mae_lab, label.size = NA, fontface = "bold") 
 
 print(insitu)
 
@@ -452,8 +470,8 @@ summary(gpr_lm)
 
 # add labels
 gpr_v2 <- gpr + geom_label(x = -4.5, y = 5.5, label = lm_eqn(lm_df_gpr), parse = TRUE, label.size = NA, fontface = "bold") +
-  geom_label(x = -4.5, y = 6.8, label = rmse_lab_v2, label.size = NA, fontface = "bold") +
-  geom_label(x = -4.5, y = 8.1, label = mae_lab_v2, label.size = NA, fontface = "bold") 
+                geom_label(x = -4.5, y = 6.8, label = rmse_lab_v2, label.size = NA, fontface = "bold") +
+                geom_label(x = -4.5, y = 8.1, label = mae_lab_v2, label.size = NA, fontface = "bold") 
 
 plot(gpr_v2)
 
@@ -465,9 +483,9 @@ plot_grid(insitu, gpr_v2,
           rel_heights = c(1/2, 1/2))
 
 # save
-# ggsave("./plots/fig11.pdf",
-#        width = 5,
-#        height = 9,
-#        units = "in",
-#        dpi = 500)
+ggsave("./plots/fig11.pdf",
+       width = 5,
+       height = 9,
+       units = "in",
+       dpi = 500)
 
