@@ -152,7 +152,7 @@ snow_depth <-ggplot(insar)+
   geom_line(aes(x = date_time, y = DSDepth_6), col = "gray50", size = .5)+
   geom_line(aes(x = date_time, y = DSDepth_7), col = "gray50", size = .5)+
   geom_line(aes(x = date_time, y = DSDepth_9), col = "gray50", size = .5)+
-  geom_line(aes(x = date_time, y = vg_snow_depth_cm), col = "red", size = .5)+
+  geom_line(aes(x = date_time, y = vg_snow_depth_cm), col = "black", size = .7)+
   scale_y_continuous(expand = c(0,0), 
                      limits = c(40,120),
                      breaks = c(seq(40,120,20)))+
@@ -181,8 +181,8 @@ temp <-ggplot() +
   geom_vline(xintercept = fsca2, linetype=2, col = "darkorange", alpha = .7) +
   annotate("rect", xmin = storm_start, xmax = storm_end,
            ymin = -Inf, ymax = Inf, alpha = .2)+
-  geom_line(data = vg_met_data, aes(x = date_time, y = mean_air_temp_c), col = "red", size = .4) + 
-  geom_line(data = redondo_met_data, aes(x = date_time, y = mean_air_temp_c), col = "black", size = .4) +
+  geom_line(data = vg_met_data, aes(x = date_time, y = mean_air_temp_c), col = "black", size = .4) + 
+  geom_line(data = redondo_met_data, aes(x = date_time, y = mean_air_temp_c), col = "red", size = .4) +
   scale_x_datetime(date_labels = "%m/%d",
                    date_breaks = "1 day",
                    expand = c(0,1),
@@ -211,8 +211,8 @@ wind <-ggplot() +
   geom_vline(xintercept = fsca2, linetype=2, col = "darkorange", alpha = .7) +
   annotate("rect", xmin = storm_start, xmax = storm_end,
            ymin = -Inf, ymax = Inf, alpha = .2)+
-  geom_line(data = vg_met_data, aes(x = date_time, y = avg_wind_ms), col = "red", size = .3) + 
-  geom_line(data = redondo_met_data, aes(x = date_time, y = avg_wind_ms), col = "black", size = .3) + 
+  geom_line(data = vg_met_data, aes(x = date_time, y = avg_wind_ms), col = "black", size = .3) + 
+  geom_line(data = redondo_met_data, aes(x = date_time, y = avg_wind_ms), col = "red", size = .3) + 
   scale_x_datetime(date_labels = "%m/%d",
                    date_breaks = "1 day",
                    expand = c(0,1),
@@ -241,8 +241,8 @@ solar <-ggplot() +
   geom_vline(xintercept = fsca2, linetype=2, col = "darkorange", alpha = .7) +
   annotate("rect", xmin = storm_start, xmax = storm_end,
            ymin = -Inf, ymax = Inf, alpha = .2)+
-  geom_line(data = vg_met_data, aes(x = date_time, y = solar_rad_kwh), col = "red", size = .3) + 
-  geom_line(data = redondo_met_data, aes(x = date_time, y = solar_rad), col = "black", size = .3) + 
+  geom_line(data = vg_met_data, aes(x = date_time, y = solar_rad_kwh), col = "black", size = .3) + 
+  geom_line(data = redondo_met_data, aes(x = date_time, y = solar_rad), col = "red", size = .3) + 
   scale_x_datetime(date_labels = "%m/%d",
                    date_breaks = "2 day",
                    expand = c(0,1),
@@ -267,8 +267,9 @@ plot_grid(snow_depth, temp, wind, solar,
 # ggsave("./plots/fig05.pdf",
 #        width = 7,
 #        height = 7,
-#        units = "in",
-#        dpi = 500)
+#        units = "in")
+
+
 
 
 
